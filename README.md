@@ -3,6 +3,7 @@
 [![Tests](https://github.com/philiprehberger/rb-date-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-date-kit/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-date_kit.svg)](https://rubygems.org/gems/philiprehberger-date_kit)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-date-kit)](LICENSE)
+[![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ec6cb9)](https://github.com/sponsors/philiprehberger)
 
 Date utilities for business days, relative expressions, and period calculations
 
@@ -91,4 +92,4 @@ bundle exec rubocop
 
 ## License
 
-MIT
+[MIT](LICENSE)
