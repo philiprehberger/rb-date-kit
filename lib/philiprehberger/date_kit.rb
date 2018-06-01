@@ -59,7 +59,7 @@ module Philiprehberger
     # @return [Date] the first day of the quarter
     def self.beginning_of_quarter(date)
       date = coerce_date(date)
-      quarter_month = ((date.month - 1) / 3) * 3 + 1
+      quarter_month = (((date.month - 1) / 3) * 3) + 1
       Date.new(date.year, quarter_month, 1)
     end
 
@@ -69,9 +69,8 @@ module Philiprehberger
     # @return [Date] the last day of the quarter
     def self.end_of_quarter(date)
       date = coerce_date(date)
-      quarter_month = ((date.month - 1) / 3) * 3 + 3
-      end_month = Date.new(date.year, quarter_month, -1)
-      end_month
+      quarter_month = (((date.month - 1) / 3) * 3) + 3
+      Date.new(date.year, quarter_month, -1)
     end
 
     # Check if a date falls on a weekend (Saturday or Sunday)

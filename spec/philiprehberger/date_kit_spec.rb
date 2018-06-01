@@ -183,11 +183,14 @@ RSpec.describe Philiprehberger::DateKit do
 
     it 'handles month overflow for day clamping' do
       # March 31 minus 1 month should be Feb 28 (not Feb 31)
-      expect(described_class.parse_relative('1 month ago', relative_to: Date.new(2026, 3, 31))).to eq(Date.new(2026, 2, 28))
+      expect(described_class.parse_relative('1 month ago',
+                                            relative_to: Date.new(2026, 3, 31))).to eq(Date.new(2026, 2, 28))
     end
 
     it 'raises for unparseable expressions' do
-      expect { described_class.parse_relative('sometime', relative_to: reference) }.to raise_error(described_class::Error)
+      expect do
+        described_class.parse_relative('sometime', relative_to: reference)
+      end.to raise_error(described_class::Error)
     end
   end
 end
