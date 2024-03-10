@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = 'Date utilities for business days, relative expressions, and period calculations'
   spec.description = 'Date utilities including business day counting and arithmetic, quarter boundaries, ' \
-                       'weekend detection, and natural language relative date parsing.'
+                     'weekend detection, and natural language relative date parsing.'
   spec.homepage = 'https://philiprehberger.com/open-source-packages/ruby/philiprehberger-date_kit'
   spec.license = 'MIT'
 
