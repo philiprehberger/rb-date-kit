@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-03
+
+### Added
+- `next_business_day` and `prev_business_day` helpers
+- `business_days_in_range` for listing business days in a date range
+- `each_business_day` iterator with Enumerator support
+- `quarter` method returning quarter number (1-4)
+
 ## [0.1.5] - 2026-03-31
 
 ### Added

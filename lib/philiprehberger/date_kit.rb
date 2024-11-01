@@ -132,6 +132,73 @@ module Philiprehberger
       end
     end
 
+    # Return the next business day after the given date (skips weekends and holidays)
+    #
+    # @param date [Date] the starting date
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Date] the next business day
+    def self.next_business_day(date, holidays: [])
+      date = coerce_date(date)
+      holidays = holidays.map { |h| coerce_date(h) }
+
+      current = date + 1
+      current += 1 while weekend?(current) || holidays.include?(current)
+      current
+    end
+
+    # Return the previous business day before the given date (skips weekends and holidays)
+    #
+    # @param date [Date] the starting date
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Date] the previous business day
+    def self.prev_business_day(date, holidays: [])
+      date = coerce_date(date)
+      holidays = holidays.map { |h| coerce_date(h) }
+
+      current = date - 1
+      current -= 1 while weekend?(current) || holidays.include?(current)
+      current
+    end
+
+    # Return an array of business days in a date range (inclusive)
+    #
+    # @param start_date [Date] the start date
+    # @param finish_date [Date] the end date
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Array<Date>] business days in the range
+    def self.business_days_in_range(start_date, finish_date, holidays: [])
+      start_date = coerce_date(start_date)
+      finish_date = coerce_date(finish_date)
+      holidays = holidays.map { |h| coerce_date(h) }
+
+      return [] if start_date > finish_date
+
+      (start_date..finish_date).reject { |d| weekend?(d) || holidays.include?(d) }
+    end
+
+    # Iterate over business days in a date range
+    #
+    # @param start_date [Date] the start date
+    # @param finish_date [Date] the end date
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @yield [Date] each business day in the range
+    # @return [Enumerator] if no block is given
+    def self.each_business_day(start_date, finish_date, holidays: [], &block)
+      days = business_days_in_range(start_date, finish_date, holidays: holidays)
+      return days.each unless block
+
+      days.each(&block)
+    end
+
+    # Return the quarter number (1-4) for the given date
+    #
+    # @param date [Date] the input date
+    # @return [Integer] the quarter number (1-4)
+    def self.quarter(date)
+      date = coerce_date(date)
+      ((date.month - 1) / 3) + 1
+    end
+
     # @api private
     def self.months_ago(date, n)
       target_month = date.month - n

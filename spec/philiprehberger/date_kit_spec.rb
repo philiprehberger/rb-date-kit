@@ -118,6 +118,192 @@ RSpec.describe Philiprehberger::DateKit do
     end
   end
 
+  describe '.next_business_day' do
+    it 'returns the next weekday from a weekday' do
+      wednesday = Date.new(2026, 3, 18)
+      expect(described_class.next_business_day(wednesday)).to eq(Date.new(2026, 3, 19))
+    end
+
+    it 'skips to Monday from Friday' do
+      friday = Date.new(2026, 3, 20)
+      expect(described_class.next_business_day(friday)).to eq(Date.new(2026, 3, 23))
+    end
+
+    it 'skips to Monday from Saturday' do
+      saturday = Date.new(2026, 3, 21)
+      expect(described_class.next_business_day(saturday)).to eq(Date.new(2026, 3, 23))
+    end
+
+    it 'skips holidays' do
+      wednesday = Date.new(2026, 3, 18)
+      holidays = [Date.new(2026, 3, 19)]
+      expect(described_class.next_business_day(wednesday, holidays: holidays)).to eq(Date.new(2026, 3, 20))
+    end
+
+    it 'skips consecutive holidays' do
+      wednesday = Date.new(2026, 3, 18)
+      holidays = [Date.new(2026, 3, 19), Date.new(2026, 3, 20)]
+      expect(described_class.next_business_day(wednesday, holidays: holidays)).to eq(Date.new(2026, 3, 23))
+    end
+
+    it 'skips holiday on weekend (no effect)' do
+      friday = Date.new(2026, 3, 20)
+      holidays = [Date.new(2026, 3, 21)] # Saturday holiday
+      expect(described_class.next_business_day(friday, holidays: holidays)).to eq(Date.new(2026, 3, 23))
+    end
+
+    it 'accepts string input' do
+      expect(described_class.next_business_day('2026-03-18')).to eq(Date.new(2026, 3, 19))
+    end
+
+    it 'accepts Time input' do
+      expect(described_class.next_business_day(Time.new(2026, 3, 18))).to eq(Date.new(2026, 3, 19))
+    end
+  end
+
+  describe '.prev_business_day' do
+    it 'returns the previous weekday from a weekday' do
+      wednesday = Date.new(2026, 3, 18)
+      expect(described_class.prev_business_day(wednesday)).to eq(Date.new(2026, 3, 17))
+    end
+
+    it 'skips to Friday from Monday' do
+      monday = Date.new(2026, 3, 23)
+      expect(described_class.prev_business_day(monday)).to eq(Date.new(2026, 3, 20))
+    end
+
+    it 'skips to Friday from Sunday' do
+      sunday = Date.new(2026, 3, 22)
+      expect(described_class.prev_business_day(sunday)).to eq(Date.new(2026, 3, 20))
+    end
+
+    it 'skips holidays' do
+      wednesday = Date.new(2026, 3, 18)
+      holidays = [Date.new(2026, 3, 17)]
+      expect(described_class.prev_business_day(wednesday, holidays: holidays)).to eq(Date.new(2026, 3, 16))
+    end
+
+    it 'skips consecutive holidays' do
+      wednesday = Date.new(2026, 3, 18)
+      holidays = [Date.new(2026, 3, 16), Date.new(2026, 3, 17)]
+      expect(described_class.prev_business_day(wednesday, holidays: holidays)).to eq(Date.new(2026, 3, 13))
+    end
+
+    it 'accepts string input' do
+      expect(described_class.prev_business_day('2026-03-18')).to eq(Date.new(2026, 3, 17))
+    end
+  end
+
+  describe '.business_days_in_range' do
+    it 'returns business days in a normal range' do
+      result = described_class.business_days_in_range(Date.new(2026, 3, 16), Date.new(2026, 3, 20))
+      expect(result).to eq([
+                             Date.new(2026, 3, 16),
+                             Date.new(2026, 3, 17),
+                             Date.new(2026, 3, 18),
+                             Date.new(2026, 3, 19),
+                             Date.new(2026, 3, 20)
+                           ])
+    end
+
+    it 'skips weekends' do
+      result = described_class.business_days_in_range(Date.new(2026, 3, 19), Date.new(2026, 3, 24))
+      expect(result).to eq([
+                             Date.new(2026, 3, 19),
+                             Date.new(2026, 3, 20),
+                             Date.new(2026, 3, 23),
+                             Date.new(2026, 3, 24)
+                           ])
+    end
+
+    it 'skips holidays' do
+      holidays = [Date.new(2026, 3, 18)]
+      result = described_class.business_days_in_range(Date.new(2026, 3, 16), Date.new(2026, 3, 20), holidays: holidays)
+      expect(result).to eq([
+                             Date.new(2026, 3, 16),
+                             Date.new(2026, 3, 17),
+                             Date.new(2026, 3, 19),
+                             Date.new(2026, 3, 20)
+                           ])
+    end
+
+    it 'returns empty array when start is after finish' do
+      expect(described_class.business_days_in_range(Date.new(2026, 3, 20), Date.new(2026, 3, 16))).to eq([])
+    end
+
+    it 'returns empty array when range is only weekends' do
+      expect(described_class.business_days_in_range(Date.new(2026, 3, 21), Date.new(2026, 3, 22))).to eq([])
+    end
+
+    it 'accepts string inputs' do
+      result = described_class.business_days_in_range('2026-03-16', '2026-03-17')
+      expect(result).to eq([Date.new(2026, 3, 16), Date.new(2026, 3, 17)])
+    end
+  end
+
+  describe '.each_business_day' do
+    it 'yields each business day to the block' do
+      days = []
+      described_class.each_business_day(Date.new(2026, 3, 16), Date.new(2026, 3, 18)) { |d| days << d }
+      expect(days).to eq([Date.new(2026, 3, 16), Date.new(2026, 3, 17), Date.new(2026, 3, 18)])
+    end
+
+    it 'returns an Enumerator when no block is given' do
+      result = described_class.each_business_day(Date.new(2026, 3, 16), Date.new(2026, 3, 18))
+      expect(result).to be_a(Enumerator)
+      expect(result.to_a).to eq([Date.new(2026, 3, 16), Date.new(2026, 3, 17), Date.new(2026, 3, 18)])
+    end
+
+    it 'skips holidays' do
+      holidays = [Date.new(2026, 3, 17)]
+      days = described_class.each_business_day(Date.new(2026, 3, 16), Date.new(2026, 3, 18),
+                                               holidays: holidays).to_a
+      expect(days).to eq([Date.new(2026, 3, 16), Date.new(2026, 3, 18)])
+    end
+  end
+
+  describe '.quarter' do
+    it 'returns 1 for January' do
+      expect(described_class.quarter(Date.new(2026, 1, 15))).to eq(1)
+    end
+
+    it 'returns 1 for March' do
+      expect(described_class.quarter(Date.new(2026, 3, 31))).to eq(1)
+    end
+
+    it 'returns 2 for April' do
+      expect(described_class.quarter(Date.new(2026, 4, 1))).to eq(2)
+    end
+
+    it 'returns 2 for June' do
+      expect(described_class.quarter(Date.new(2026, 6, 30))).to eq(2)
+    end
+
+    it 'returns 3 for July' do
+      expect(described_class.quarter(Date.new(2026, 7, 1))).to eq(3)
+    end
+
+    it 'returns 3 for September' do
+      expect(described_class.quarter(Date.new(2026, 9, 30))).to eq(3)
+    end
+
+    it 'returns 4 for October' do
+      expect(described_class.quarter(Date.new(2026, 10, 1))).to eq(4)
+    end
+
+    it 'returns 4 for December' do
+      expect(described_class.quarter(Date.new(2026, 12, 31))).to eq(4)
+    end
+
+    it 'accepts string input' do
+      expect(described_class.quarter('2026-05-15')).to eq(2)
+    end
+
+    it 'accepts Time input' do
+      expect(described_class.quarter(Time.new(2026, 8, 10))).to eq(3)
+    end
+  end
+
   describe '.parse_relative' do
     let(:reference) { Date.new(2026, 3, 22) }
 

@@ -44,9 +44,41 @@ Philiprehberger::DateKit.add_business_days(Date.new(2026, 3, 20), 1, holidays: h
 # => 2026-03-24 (skips weekend and holiday)
 ```
 
+### Next / Previous Business Day
+
+```ruby
+Philiprehberger::DateKit.next_business_day(Date.new(2026, 3, 20))
+# => 2026-03-23 (skips weekend)
+
+Philiprehberger::DateKit.prev_business_day(Date.new(2026, 3, 23))
+# => 2026-03-20 (skips weekend)
+
+holidays = [Date.new(2026, 3, 23)]
+Philiprehberger::DateKit.next_business_day(Date.new(2026, 3, 20), holidays: holidays)
+# => 2026-03-24 (skips weekend and holiday)
+```
+
+### Business Days in Range
+
+```ruby
+Philiprehberger::DateKit.business_days_in_range(Date.new(2026, 3, 16), Date.new(2026, 3, 20))
+# => [2026-03-16, 2026-03-17, 2026-03-18, 2026-03-19, 2026-03-20]
+
+Philiprehberger::DateKit.each_business_day(Date.new(2026, 3, 16), Date.new(2026, 3, 20)) do |date|
+  puts date
+end
+
+# Without a block, returns an Enumerator
+enum = Philiprehberger::DateKit.each_business_day(Date.new(2026, 3, 16), Date.new(2026, 3, 20))
+enum.map { |d| d.strftime('%A') }
+```
+
 ### Quarter Boundaries
 
 ```ruby
+Philiprehberger::DateKit.quarter(Date.new(2026, 5, 15))
+# => 2
+
 Philiprehberger::DateKit.beginning_of_quarter(Date.new(2026, 5, 15))
 # => 2026-04-01
 
@@ -76,6 +108,11 @@ Philiprehberger::DateKit.weekend?(Date.new(2026, 3, 20)) # => false (Friday)
 |--------|-------------|
 | `.business_days_between(start, finish)` | Count business days between two dates |
 | `.add_business_days(date, n, holidays:)` | Add business days, skipping weekends and holidays |
+| `.next_business_day(date, holidays:)` | Return the next business day after the given date |
+| `.prev_business_day(date, holidays:)` | Return the previous business day before the given date |
+| `.business_days_in_range(start, finish, holidays:)` | Return array of business days in a date range |
+| `.each_business_day(start, finish, holidays:, &block)` | Iterate business days with Enumerator support |
+| `.quarter(date)` | Return the quarter number (1-4) for the given date |
 | `.beginning_of_quarter(date)` | Return the first day of the quarter |
 | `.end_of_quarter(date)` | Return the last day of the quarter |
 | `.weekend?(date)` | Check if a date falls on a weekend |
