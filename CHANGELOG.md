@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-09
+
+### Added
+- `business_day?` predicate for weekend and holiday-aware checks
+- `last_business_day_of_month` for end-of-month business day lookups
+- `business_days_in_month` returning all business days within a month
+- `nth_business_day_of_month` for ordinal business day selection within a month
+
 ## [0.2.0] - 2026-04-03
 
 ### Added

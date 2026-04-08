@@ -304,6 +304,88 @@ RSpec.describe Philiprehberger::DateKit do
     end
   end
 
+  describe '.business_day?' do
+    it 'returns true for a weekday' do
+      expect(described_class.business_day?(Date.new(2026, 3, 18))).to be true
+    end
+
+    it 'returns false for a weekend' do
+      expect(described_class.business_day?(Date.new(2026, 3, 21))).to be false
+    end
+
+    it 'returns false for a holiday' do
+      holidays = [Date.new(2026, 3, 18)]
+      expect(described_class.business_day?(Date.new(2026, 3, 18), holidays: holidays)).to be false
+    end
+
+    it 'accepts string input' do
+      expect(described_class.business_day?('2026-03-18')).to be true
+    end
+  end
+
+  describe '.last_business_day_of_month' do
+    it 'returns the last weekday of the month' do
+      # March 2026: March 31 is a Tuesday
+      expect(described_class.last_business_day_of_month(Date.new(2026, 3, 1))).to eq(Date.new(2026, 3, 31))
+    end
+
+    it 'skips weekend at month end' do
+      # May 2026: May 31 is Sunday, May 30 is Saturday -> May 29 (Friday)
+      expect(described_class.last_business_day_of_month(Date.new(2026, 5, 15))).to eq(Date.new(2026, 5, 29))
+    end
+
+    it 'skips holidays at month end' do
+      holidays = [Date.new(2026, 3, 31), Date.new(2026, 3, 30)]
+      expect(described_class.last_business_day_of_month(Date.new(2026, 3, 1), holidays: holidays))
+        .to eq(Date.new(2026, 3, 27))
+    end
+  end
+
+  describe '.business_days_in_month' do
+    it 'returns all weekdays in March 2026' do
+      days = described_class.business_days_in_month(Date.new(2026, 3, 15))
+      expect(days.first).to eq(Date.new(2026, 3, 2))
+      expect(days.last).to eq(Date.new(2026, 3, 31))
+      expect(days.size).to eq(22)
+    end
+
+    it 'excludes holidays' do
+      holidays = [Date.new(2026, 3, 16)]
+      days = described_class.business_days_in_month(Date.new(2026, 3, 15), holidays: holidays)
+      expect(days).not_to include(Date.new(2026, 3, 16))
+      expect(days.size).to eq(21)
+    end
+  end
+
+  describe '.nth_business_day_of_month' do
+    it 'returns the first business day' do
+      # March 2026: March 1 is Sunday, so first business day is March 2
+      expect(described_class.nth_business_day_of_month(Date.new(2026, 3, 15), 1)).to eq(Date.new(2026, 3, 2))
+    end
+
+    it 'returns the fifth business day' do
+      expect(described_class.nth_business_day_of_month(Date.new(2026, 3, 15), 5)).to eq(Date.new(2026, 3, 6))
+    end
+
+    it 'accounts for holidays when selecting the nth day' do
+      holidays = [Date.new(2026, 3, 2)]
+      expect(described_class.nth_business_day_of_month(Date.new(2026, 3, 15), 1, holidays: holidays))
+        .to eq(Date.new(2026, 3, 3))
+    end
+
+    it 'raises when n exceeds available business days' do
+      expect do
+        described_class.nth_business_day_of_month(Date.new(2026, 3, 15), 99)
+      end.to raise_error(described_class::Error, /only \d+ business days/)
+    end
+
+    it 'raises for non-positive n' do
+      expect do
+        described_class.nth_business_day_of_month(Date.new(2026, 3, 15), 0)
+      end.to raise_error(described_class::Error, /positive integer/)
+    end
+  end
+
   describe '.parse_relative' do
     let(:reference) { Date.new(2026, 3, 22) }
 

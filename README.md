@@ -86,6 +86,22 @@ Philiprehberger::DateKit.end_of_quarter(Date.new(2026, 5, 15))
 # => 2026-06-30
 ```
 
+### Monthly Business Days
+
+```ruby
+Philiprehberger::DateKit.business_day?(Date.new(2026, 3, 18))
+# => true
+
+Philiprehberger::DateKit.last_business_day_of_month(Date.new(2026, 5, 15))
+# => 2026-05-29 (Friday; skips Sat/Sun month-end)
+
+Philiprehberger::DateKit.business_days_in_month(Date.new(2026, 3, 15)).size
+# => 22
+
+Philiprehberger::DateKit.nth_business_day_of_month(Date.new(2026, 3, 15), 1)
+# => 2026-03-02 (first business day of March)
+```
+
 ### Relative Date Parsing
 
 ```ruby
@@ -116,6 +132,10 @@ Philiprehberger::DateKit.weekend?(Date.new(2026, 3, 20)) # => false (Friday)
 | `.beginning_of_quarter(date)` | Return the first day of the quarter |
 | `.end_of_quarter(date)` | Return the last day of the quarter |
 | `.weekend?(date)` | Check if a date falls on a weekend |
+| `.business_day?(date, holidays:)` | Check if a date is a business day (not weekend/holiday) |
+| `.last_business_day_of_month(date, holidays:)` | Return the last business day of the month |
+| `.business_days_in_month(date, holidays:)` | Return all business days in the month |
+| `.nth_business_day_of_month(date, n, holidays:)` | Return the nth business day of the month |
 | `.parse_relative(str, relative_to:)` | Parse a relative date expression |
 
 ## Development
