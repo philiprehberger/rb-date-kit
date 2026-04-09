@@ -199,6 +199,58 @@ module Philiprehberger
       ((date.month - 1) / 3) + 1
     end
 
+    # Check if a date is a business day (not a weekend and not a holiday)
+    #
+    # @param date [Date] the date to check
+    # @param holidays [Array<Date>] optional list of holiday dates
+    # @return [Boolean]
+    def self.business_day?(date, holidays: [])
+      date = coerce_date(date)
+      holidays = holidays.map { |h| coerce_date(h) }
+      !weekend?(date) && !holidays.include?(date)
+    end
+
+    # Return the last business day of the month containing the given date
+    #
+    # @param date [Date] any date within the target month
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Date] the last business day of the month
+    def self.last_business_day_of_month(date, holidays: [])
+      date = coerce_date(date)
+      holidays = holidays.map { |h| coerce_date(h) }
+      current = Date.new(date.year, date.month, -1)
+      current -= 1 while weekend?(current) || holidays.include?(current)
+      current
+    end
+
+    # Return the nth business day of the month containing the given date
+    #
+    # @param date [Date] any date within the target month
+    # @param n [Integer] the 1-based ordinal (e.g., 1 for first, 5 for fifth)
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Date] the nth business day of the month
+    # @raise [Error] if n is not a positive integer or exceeds the number of business days in the month
+    def self.nth_business_day_of_month(date, n, holidays: [])
+      raise Error, 'n must be a positive integer' unless n.is_a?(Integer) && n.positive?
+
+      days = business_days_in_month(date, holidays: holidays)
+      raise Error, "month has only #{days.size} business days" if n > days.size
+
+      days[n - 1]
+    end
+
+    # Return all business days in the month containing the given date
+    #
+    # @param date [Date] any date within the target month
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Array<Date>] business days in the month
+    def self.business_days_in_month(date, holidays: [])
+      date = coerce_date(date)
+      first = Date.new(date.year, date.month, 1)
+      last = Date.new(date.year, date.month, -1)
+      business_days_in_range(first, last, holidays: holidays)
+    end
+
     # @api private
     def self.months_ago(date, n)
       target_month = date.month - n
