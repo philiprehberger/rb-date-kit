@@ -223,6 +223,19 @@ module Philiprehberger
       current
     end
 
+    # Return the first business day of the month containing the given date
+    #
+    # @param date [Date] any date within the target month
+    # @param holidays [Array<Date>] optional list of holiday dates to skip
+    # @return [Date] the first business day of the month
+    def self.first_business_day_of_month(date, holidays: [])
+      date = coerce_date(date)
+      holidays = holidays.map { |h| coerce_date(h) }
+      current = Date.new(date.year, date.month, 1)
+      current += 1 while weekend?(current) || holidays.include?(current)
+      current
+    end
+
     # Return the nth business day of the month containing the given date
     #
     # @param date [Date] any date within the target month

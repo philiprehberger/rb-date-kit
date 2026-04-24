@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-23
+
+### Added
+- `first_business_day_of_month(date, holidays: [])` — returns the first business day of the month containing the given date, skipping weekends and holidays. Mirrors the existing `last_business_day_of_month`.
+
 ## [0.3.0] - 2026-04-09
 
 ### Added

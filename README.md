@@ -95,6 +95,9 @@ Philiprehberger::DateKit.business_day?(Date.new(2026, 3, 18))
 Philiprehberger::DateKit.last_business_day_of_month(Date.new(2026, 5, 15))
 # => 2026-05-29 (Friday; skips Sat/Sun month-end)
 
+Philiprehberger::DateKit.first_business_day_of_month(Date.new(2026, 8, 15))
+# => 2026-08-03 (Monday; skips Sat 8/1, Sun 8/2)
+
 Philiprehberger::DateKit.business_days_in_month(Date.new(2026, 3, 15)).size
 # => 22
 
@@ -134,6 +137,7 @@ Philiprehberger::DateKit.weekend?(Date.new(2026, 3, 20)) # => false (Friday)
 | `.weekend?(date)` | Check if a date falls on a weekend |
 | `.business_day?(date, holidays:)` | Check if a date is a business day (not weekend/holiday) |
 | `.last_business_day_of_month(date, holidays:)` | Return the last business day of the month |
+| `.first_business_day_of_month(date, holidays:)` | Return the first business day of the month |
 | `.business_days_in_month(date, holidays:)` | Return all business days in the month |
 | `.nth_business_day_of_month(date, n, holidays:)` | Return the nth business day of the month |
 | `.parse_relative(str, relative_to:)` | Parse a relative date expression |

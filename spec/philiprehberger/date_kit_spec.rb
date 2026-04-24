@@ -341,6 +341,34 @@ RSpec.describe Philiprehberger::DateKit do
     end
   end
 
+  describe '.first_business_day_of_month' do
+    it 'skips weekend at month start' do
+      # March 2026: March 1 is Sunday -> first business day is March 2 (Monday)
+      expect(described_class.first_business_day_of_month(Date.new(2026, 3, 15))).to eq(Date.new(2026, 3, 2))
+    end
+
+    it 'skips two-day weekend at month start' do
+      # August 2026: Aug 1 is Saturday, Aug 2 is Sunday -> first business day is Aug 3 (Monday)
+      expect(described_class.first_business_day_of_month(Date.new(2026, 8, 15))).to eq(Date.new(2026, 8, 3))
+    end
+
+    it 'returns day 1 when month starts on a weekday' do
+      # April 2026: April 1 is Wednesday -> itself is the first business day
+      expect(described_class.first_business_day_of_month(Date.new(2026, 4, 15))).to eq(Date.new(2026, 4, 1))
+    end
+
+    it 'skips holidays at the start of the month' do
+      holidays = [Date.new(2026, 4, 1), Date.new(2026, 4, 2)]
+      # Wed/Thu are holidays, Friday April 3 is the first business day
+      expect(described_class.first_business_day_of_month(Date.new(2026, 4, 15), holidays: holidays))
+        .to eq(Date.new(2026, 4, 3))
+    end
+
+    it 'accepts string input' do
+      expect(described_class.first_business_day_of_month('2026-08-15')).to eq(Date.new(2026, 8, 3))
+    end
+  end
+
   describe '.business_days_in_month' do
     it 'returns all weekdays in March 2026' do
       days = described_class.business_days_in_month(Date.new(2026, 3, 15))
